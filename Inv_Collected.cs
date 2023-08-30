@@ -2,23 +2,23 @@ using UnityEngine;
 
 public class Inv_Collected : MonoBehaviour
 {
-    // The name of the object 
+    // Objenin adı
     public string name;
-    // The image(sprite) that will be shown in the inventory
+    // Objenin envanterde gözükecek görseli
     public Sprite image;
-    // A reference to the inventory script
+    // Envanter koduna bir referans
     private Inv_Inventory inventory;
 
     private void Start()
     {
-        // Looking for an object with the inventory script and storing it in a variable
+        // İçinde envanter kodu olan bir obje arayıp bir değişkende tutmak
         inventory = FindObjectOfType<Inv_Inventory>();
     }
 
     private void OnTriggerEnter(Collider other)
     {                 
-        // Whenever the object is picked, we call the AddItem method from the inventory script, passing
-        // the object's sprite, name, and the object collected by the player
+        // Obje toplandığında, envanter kodundan AddItem fonksiyonunu çağırıyoruz
+        // objenin görseli, adı ve oyuncu tarafından toplanan obje bilgilerini aktarıyoruz
         inventory.AddItem(image, name, gameObject);
     }
 }

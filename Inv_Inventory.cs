@@ -5,33 +5,33 @@ using UnityEngine.UI;
 
 public class Inv_Inventory : MonoBehaviour
 {       
-    // A list with all the inventory buttons
+    // Envanter butonlarının olduğu bir liste
     [SerializeField] List<Button> buttons = new List<Button>();   
-    // All the objects from the Resources folder
+    // Resources klasöründeki bütün objeler
     [SerializeField] List<GameObject> resourceItems = new List<GameObject>();
     [SerializeField] GameObject buttonsPath;
-    // The names of objects that we collected
+    // Topladığımız objelerin isimleri
     [SerializeField] List<string> inventoryItems = new List<string>();
-    // The object that is currently equipped
+    // Şu an kuşanılan objenin adı
     GameObject itemInArm;
-    // The spot at which the object is going to spawn spawn
+    // Objenin oyuncu üzerinde ekleneceği konum
     [SerializeField] Transform itemPoint;
     [SerializeField] Transform[] itemPositions;
-    // A text field for inventory warning messages (Text)
+    // Envanter uyarı mesajları için bir yazı alanı (Text)
     [SerializeField] TMP_Text warning;
-    // The list of items collected by the player
+    // Oyuncu tarafından toplanan objelerin listesi
     [SerializeField] List<GameObject> playerItems = new List<GameObject>();
     GameObject itemPosition;
 
 
     private void Start()
     {
-        // Loading all the inventory items located in the Resources folder
+        // Resources klasöründeki bütün envanter objelerini yükleyelim
         GameObject[] objArr = Resources.LoadAll<GameObject>("Items");
         
-        // Filling out the list of possible inventory items
+        // Olası envanter itemleri listesini doldurmak
         resourceItems.AddRange(objArr);
-        // Going through all the inventory buttons and storing them in the list
+        // Bütün envanter butonlarına bakıp bir listede tutmak
         foreach(Transform child in buttonsPath.transform)
         {
             buttons.Add(child.GetComponent<Button>());
@@ -39,7 +39,7 @@ public class Inv_Inventory : MonoBehaviour
     }
     private void Update()
     {
-        // Enabling/disabling the mouse cursor whenever the player presses Q
+        // Oyuncu Q tuşuna bastığında imleci aktive/deaktive etme
         if (Input.GetKeyDown(KeyCode.Q))
         {
             if (Cursor.lockState == CursorLockMode.Locked)
@@ -55,64 +55,64 @@ public class Inv_Inventory : MonoBehaviour
 
     public void AddItem(Sprite img, string itemName, GameObject obj)
     {        
-        // If the inventory is full, we output a warning message and abort the method
+        // Eğer envanter doluysa, fonksiyonu durdurup bir uyarı mesajı gösteriyoruz 
         if (inventoryItems.Count >= buttons.Count)
         {
             warning.text = "Full Inventory!";
             Invoke("WarningUpdate", 1f);
             return;
         }
-        // If the player already has a copy of the item, we output a warning message and abort the method
+        // Eğer oyuncuda bu item zaten varsa fonksiyonu durdurup bir uyarı mesajı gösteriyoruz 
         if (inventoryItems.Contains(itemName))
         {
             warning.text = "You already have " + itemName;
             Invoke("WarningUpdate", 1f);
             return;
         }
-        // Adding the item's name to the inventory
+        // İtemin adını envantere ekleme
         inventoryItems.Add(itemName);
-        // Getting the next free button and its Image component
+        // Bir sonraki boş butonu ve Image bileşenini bulmak
         var buttonImage = buttons[inventoryItems.Count - 1].GetComponent<Image>();
-        // Setting the button's image to the image of the item we collected
+        // Butonun görselini topladığımız objenin görseli yapma
         buttonImage.sprite = img;
-        // Destroying the item we collected
+        // Topladığımız itemi kaldırma
         Destroy(obj);
     }
-    // A method that erases all the warning messages
+    // Bütün uyarı mesajlarını silen bir fonksiyon
     void WarningUpdate()
     {
         warning.text = "";
     }
-    // This method is called whenever a button is pressed
+    // Bu fonksiyon bir butona tıklanıldığında çalışacak
     public void UseItem(int itemPos)
     {           
-        // If we pressed a button with no item attached to it, we abort the function
+        // Eğer item olamayan bir butona basarsak fonksiyonu durduruyoruz 
         if (inventoryItems.Count <= itemPos) return;
-        // Storing the name of the object attached to this button in a variable
+        // Butona ekli itemin adını bir değişkende tutma
         string item = inventoryItems[itemPos];
-        // Calling the method that equips the item from the inventory, and passing the name of the item as an inventory
+        // Envanterdeki itemi kuşanmayı sağlayacak fonksiyonu çağırmak, itemin adını yollamak
         GetItemFromInventory(item);
     }
-    // This method equips the item. It is called from the UseItem method 
+    // Bu fonksiyon itemin kuşanılmasını sağlıyor. UseItem fonksiyonunda çağrılıyor 
     public void GetItemFromInventory(string itemName)
     {
-        // Searching for the object with the specified name in the list of all objects
+        // Objeler listesinde yollanan isimde bir obje arama
         var resourceItem = resourceItems.Find(x => x.name == itemName);
-        // If the object with such name does not exist in the resource folder, we abort the function
+        // Eğer bu isimde bir obje yoksa fonksiyonu durduruyoruz
         if (resourceItem == null) return;
 
-        // Looking for the object with the specified name in the list of player objects
+        // Oyuncudaki objeler listesinde yollanan isimde bir obje arama 
         var putFind = playerItems.Find(x => x.name == itemName);
 
-        // If such an item does not exist, then
+        // Eğer yoksa
         if (putFind == null)
         {
-            // If the player already has an item equipped, we disable it
+            // Eğer zaten varsa, deaktive ediyoruz
             if (itemInArm != null)
             {
                 itemInArm.SetActive(false);
             }
-            // Checking out which body part the object should be attached to
+            // Objenin hangi vücut parçasına eklenmesi gerektiğini kontrol
             var pos = resourceItem.GetComponent<Inv_ItemPosition>().positon;
             if (pos == Inv_ItemPosition.ItemPos.Head)
             {
@@ -129,25 +129,25 @@ public class Inv_Inventory : MonoBehaviour
                 itemPoint.position = itemPositions[2].position;
                 itemPosition = itemPositions[2].gameObject;
             }
-            // Spawning the object at the previously defined point
+            // Belirlenen doğma noktasına objeyi eklemek
             var newItem = Instantiate(resourceItem, itemPoint);
-            // Moving this object to the player's Hierarchy 
+            // Objeyi oyuncunun hierarchysine eklemek 
             newItem.transform.parent = itemPosition.transform;
-            // Naming the new object
+            // Yeni objeyi isimlendirmek
             newItem.name = itemName;
-            // Adding the object to the list of objects in player's inventory
+            // Objeyi oyuncunun envanterindeki objeler listesine eklemek
             playerItems.Add(newItem);
-            //Telling unity that the itemInArm inventory equals the newly-equipped itemТ (in other words, we remember the item that is currently equipped)
+            //Unity'e itemInArm'ın yeni kuşanılan objeye eşit olduğunu söylüyoruz (yani, şu an kuşandığımız objeyi aklımızda tutuyoruz)
             itemInArm = newItem;
         }
-        // If this item already exists in the scene, then
+        // Eğer item sahnede mevcutsa
         else
         {
-            // If this object is the object that is already equipped, we simply change its state
+            // Eğer bu obje zaten kuşanılmış durumdaysa, durumunu değiştiriyoruz
             {
                 putFind.SetActive(!putFind.activeSelf);
             }
-            // If this is another object, we simply disabling the currently equipped item and enable the new one
+            // Eğer başka bir objeyse, şu an kuşanılan objeyi deaktive ediyoruz ve yenisini kuşanıyoruz
             else
             {
                 itemInArm.SetActive(false);
